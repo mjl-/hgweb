@@ -1,0 +1,21 @@
+repo/
+	list of repo's?  plus links to latest tgz, to latest checkout
+	explanation about files, tgz.  how to run most programs
+        
+	so /repo/hg/<reponome>/files/<rev>/ for root of checkout for revision.
+repo/changes
+	last changes for all repo's.  plus link to tgz and latest checkout.
+repo/changes/<reponame>
+	last changes for given repo.  could be like how hg serve serves it.
+repo/changes/<reponame>.rss
+	last changes as rss?
+repo/diff/<reponame>/<rev1>-<rev2>.diff
+	textual diff for the revision 
+
+/hg/<reponame>
+	hg/fs for reponame?
+
+create web scgi frontend to:
+- keep track of changes in many hg repo's, and sort the changes by time of commit (not by repo).  allows keeping track of many repo's.  also provide rss file with same information.  easily done by reading /log/last, (to find latest changelog), determine version (by stat-ing), and reading the five logs before that.  for each repo we are tracking.  then merging the results by time, and printing the html.
+- show diff between two versions.  diff is created just by calling diff(1) on the two dirs of the revision (served by hg/fs): diff -r repo/files/1/ repo/files/100/
+- provide links to .tgz files.  served by hg/fs:  /tgz/reponame-rev.tgz
