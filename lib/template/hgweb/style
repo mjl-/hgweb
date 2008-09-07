@@ -1,0 +1,26 @@
+status: 200 OK
+content-type: text/css; charset=utf-8
+
+@media screen {
+	body	{ font-family: "verdana", sans-serif; margin-right: 4em; }
+}
+
+@media print {
+	body	{ font-family: serif; }
+}
+
+h1	{ font-size: 1.3em; }
+h2,h3,h4,h5,h6	{ font-size: 1.0em; }
+
+h1	{ margin-left: -1.5em; }
+body	{ margin-left: 3em; }
+
+body > pre	{ padding: 1.5em; border: 1pt solid rgb(200, 200, 200); }
+div.links	{ font-size: 0.8em; text-align: right; }
+tt, code	{ background-color: #ffb; }
+body > code	{ margin: 1.5em; padding: 0.3em; padding-left: 1em; padding-right: 3em; }
+
+table.status td, table.status th	{ font-size: 0.9em; }
+table.status td	{ padding-right: 1.5em; }
+table.status th.who	{ width: 10em; }
+table.status th.when	{ width: 8em; }

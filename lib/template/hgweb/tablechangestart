@@ -1,0 +1,12 @@
+<h1 id="%tabid%">%tabtitle%</h1>
+<table class="status">
+	<thead>
+<tr>
+%if set printrepo%
+	<th class="repo">repo</th>
+%end
+	<th class="rev">rev</th>
+	<th class="when">when</th>
+	<th class="why">why</th>
+</tr>
+	</thead>

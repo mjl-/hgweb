@@ -1,0 +1,8 @@
+%include httpheaders
+%include htmlstart
+
+<p>
+	error: %error%
+</p>
+
+%include htmlend

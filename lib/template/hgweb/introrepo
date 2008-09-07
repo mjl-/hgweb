@@ -1,0 +1,50 @@
+<div class="links">
+<a href="#about">about</a>,
+<a href="#tgz">tgz</a>,
+<a href="#contents">contents</a>,
+<a href="#changes">changes</a>
+</div>
+
+
+<h1 id="about">about</h1>
+<p>
+	see the <a href="../../hg/%&repo%/files/last/README">README</a> for an introduction to this package.
+</p>
+
+<h1 id="tgz">tgz</h1>
+<p>
+	download a snapshot of the latest version:  <a href="../../hg/%&repo%/tgz/%repo%-%lastrev%.tgz">%repo%-%lastrev%.tgz</a>.
+</p>
+
+<h1 id="contents">contents</h1>
+<p>
+	the files in the latest revision can be found at <a href="../../hg/%&repo%/files/last/">/hg/%&repo%/files/last/</a>.  a specific revision can be access by replacing "last" with the revision number.
+	a few direct links to useful files in the latest revision:
+</p>
+
+%if length manpages != 0%
+<h2>manual pages:</h2>
+<ul>
+%foreach manpages%
+	<li><a href="../man/%&repo%/last/man/%section%/%name%.html">%name%(%section%)</a></li>
+%done%
+</ul>
+%end%
+
+%if length mfiles != 0%
+<h2>limbo module files:</h2>
+<ul>
+%foreach mfiles%
+	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+%done%
+</ul>
+%end%
+
+%if length bfiles != 0%
+<h2>limbo source files:</h2>
+<ul>
+%foreach bfiles%
+	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+%done%
+</ul>
+%end%

@@ -1,0 +1,18 @@
+<div class="links">
+<a href="#intro">intro</a>,
+<a href="#lastrepochanges">last repository changes</a>
+</div>
+
+<h1 id="intro">intro</h1>
+<p>
+	this page provides a status overview of the various pieces of software i am keeping track of using mercurial.  links are provided to more details for each project.  on each project page, more links are provided to commit messages, .tgz's of the various revisions, and links to the browseable contents of the projects.
+</p>
+
+<p>
+	this page is served by the code in repository <a href="changes/hgweb">hgweb</a>, which uses styx/9p file servers provided by the code in repository <a href="changes/hgfs">hgfs</a>.  it's all in limbo.  you can mount the hgfs'en directly, from inferno:
+</p>
+
+<code>
+	mount -A -P net!knaagkever.ueber.net!6867 /n/hg
+</code>
+
