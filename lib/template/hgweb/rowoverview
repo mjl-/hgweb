@@ -1,0 +1,7 @@
+<tr>
+	<td><a href="r/%repo%">%repo%</a></td>
+	<td><a href="../../hg/%repo%/log/%rev%">%rev%</a></td>
+	<td>%when%</td>
+	<td><a href="../../hg/%repo%/tgz/%repo%-%rev%.tgz">tgz</a></td>
+	<td>%why%</td>
+</tr>

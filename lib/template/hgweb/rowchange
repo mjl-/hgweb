@@ -1,8 +1,10 @@
 <tr>
-%if set printrepo%
-	<td><a href="r/%repo%">%repo%</a></td>
-%end%
 	<td><a href="../../hg/%repo%/log/%rev%">%rev%</a></td>
 	<td>%when%</td>
+%if not set reva%
+	<td>-</td>
+%else%
+	<td><a href="../diff/%repo%-%reva%-%revb%.diff">diff</a></td>
+%end%
 	<td>%why%</td>
 </tr>

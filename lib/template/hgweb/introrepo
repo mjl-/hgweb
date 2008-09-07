@@ -3,6 +3,7 @@
 </div>
 <div class="links">
 <a href="#about">about</a>,
+<a href="#clone">clone</a>,
 <a href="#tgz">tgz</a>,
 <a href="#contents">contents</a>,
 <a href="#changes">changes</a>
@@ -13,6 +14,14 @@
 <p>
 	see the <a href="../../hg/%&repo%/files/last/README">README</a> for an introduction to this package.
 </p>
+
+<h1 id="clone">clone</h1>
+<p>
+	to clone (and pull from) this repository, use the url <tt>static-http://www.ueber.net/who/mjl/hg/%repo%/</tt>.  as of yet, there is no non-static-http access.  thus, to clone, issue the following command:
+</p>
+<code>
+	hg clone static-http://www.ueber.net/who/mjl/hg/%repo%/
+</code>
 
 <h1 id="tgz">tgz</h1>
 <p>

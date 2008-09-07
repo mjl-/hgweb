@@ -92,7 +92,7 @@ init(nil: ref Draw->Context, nil: list of string)
 		form.print("htmlstart", ("repo", "")::nil);
 		form.print("introchanges", nil);
 
-		form.print("tablechangestart", ("tabid", "lastrepochanges")::("tabtitle", "last repository changes")::("printrepo", "")::nil);
+		form.print("tableoverviewstart", ("tabid", "lastrepochanges")::("tabtitle", "last repository changes")::nil);
 		ca := l2a(cl);
 		sort(ca, gechangetime);
 
@@ -106,12 +106,25 @@ init(nil: ref Draw->Context, nil: list of string)
 				("who", userstr(c.user)),
 				("when", whenstr(c.when)),
 				("why", title(c.msg)),
-				("printrepo", ""),
 			};
-			form.print("rowchange", args);
+			form.print("rowoverview", args);
 		}
-		form.print("tablechangeend", nil);
+		form.print("tableend", nil);
 		form.print("htmlend", nil);
+
+	} else if(path == "changes.rss") {
+		(cl, err) := readchanges();
+		if(err != nil)
+			bad(err);
+
+		items: list of ref Rssgen->Item;
+		for(; cl != nil; cl = tl cl)
+			items = change2rssitem(hd cl, 1)::items;
+		title := "last change for each hg repo";
+		url := sprint("http://%s/%schanges.rss", env->getenv("SERVER_NAME"), env->getenv("SCRIPT_NAME"));
+		descr := "last changes for each mercurial repository";
+		xml := rssgen->rssgen(title, url, descr, items);
+		sys->print("status: 200 OK\r\ncontent-type: text/xml; charset=utf-8\r\n\r\n%s", xml);
 
 	} else if(str->prefix("r/", path)) {
 		repo: string;
@@ -125,7 +138,7 @@ init(nil: ref Draw->Context, nil: list of string)
 		if(!validrepo(repo))
 			badpath(path);
 
-		# read last n changes for repo
+		# read last rev number for repo
 		(lrev, err) := lastrev(repo);
 		if(err != nil)
 			badrepo(repo);
@@ -157,21 +170,18 @@ init(nil: ref Draw->Context, nil: list of string)
 		bfiles = lists->reverse(bfiles);
 		mfiles = lists->reverse(mfiles);
 
-		changes: list of ref Change;
-		r := lrev-Nchanges;
-		if(r < 0)
-			r = 0;
-		for(; r <= lrev; r++) {
-			(c, cerr) := readchange(repo, string r);
-			if(cerr != nil)
-				bad(cerr);
-			changes = c::changes;
-		}
+		# read last n changes
+		startrev := lrev-Nchanges;
+		if(startrev < 0)
+			startrev = 0;
+		(changes, cerr) := readchangerange(repo, lrev, startrev);
+		if(cerr != nil)
+			bad(cerr);
 
 		if(isrss) {
 			items: list of ref Rssgen->Item;
 			for(; changes != nil; changes = tl changes)
-				items = change2rssitem(hd changes)::items;
+				items = change2rssitem(hd changes, 0)::items;
 			title := sprint("changes for hg repo %q", repo);
 			url := sprint("http://%s/%sr/%s.rss", env->getenv("SERVER_NAME"), env->getenv("SCRIPT_NAME"), repo);
 			descr := sprint("last %d changes for the mercurial repository %#q", Nchanges, repo);
@@ -184,7 +194,10 @@ init(nil: ref Draw->Context, nil: list of string)
 		form.print("htmlstart", ("repo", repo)::nil);
 		form.printl("introrepo", ("repo", repo)::("lastrev", string lrev)::nil, ("manpages", mans)::("bfiles", bfiles)::("mfiles", mfiles)::nil);
 
-		form.print("tablechangestart", ("tabid", "changes")::("tabtitle", "changes")::nil);
+		tabargs := ("tabid", "changes")::("tabtitle", "changes")::("repo", repo)::nil;
+		if((oldrev := lrev-len changes) >= 0)
+			tabargs = ("oldrev", string oldrev)::tabargs;
+		form.print("tablechangestart", tabargs);
 
 		for(; changes != nil; changes = tl changes) {
 			c := hd changes;
@@ -197,9 +210,17 @@ init(nil: ref Draw->Context, nil: list of string)
 				("when", whenstr(c.when)),
 				("why", title(c.msg)),
 			};
+			if(c.rev != 0) {
+				args = 
+				("reva", string (c.rev-1))::
+				("revb", string c.rev)::
+				args;
+			} else {
+				say(sprint("c.rev %d", c.rev));
+			}
 			form.print("rowchange", args);
 		}
-		form.print("tablechangeend", nil);
+		form.print("tableend", nil);
 		form.print("htmlend", nil);
 
 	} else if(str->prefix("diff/", path) && suffix(".diff", path)) {
@@ -217,7 +238,6 @@ init(nil: ref Draw->Context, nil: list of string)
 		brevstr = brevstr[1:];
 
 		cmd := sprint("diff -r /n/hg/%s/files/%s /n/hg/%s/files/%s", repo, arevstr, repo, brevstr);
-		say(sprint("diff cmd, %q", cmd));
 		
 		sys->print("status: 200 OK\r\ncontent-type: text/plain; charset=utf-8\r\n\r\n");
 		err := sh->system(nil, cmd);
@@ -244,9 +264,70 @@ init(nil: ref Draw->Context, nil: list of string)
 		cmd := sprint("man2html %q", p);
 		form.print("httpheaders", nil);
 		err := sh->system(nil, cmd);
-		if(err != nil)
+		if(err != nil && err != "some")
 			warn(sprint("man2html: %q: %s", cmd, err));
 		sys->print("</BODY></HTML>\n");
+
+	} else if((isshort := str->prefix("log/short/", path)) || str->prefix("log/full/", path)) {
+		# path should look like: log/(short full)/$repo/$rev
+		lpath: string;
+		if(isshort)
+			lpath = path[len "log/short/":];
+		else
+			lpath = path[len "log/full/":];
+
+		(repo, revstr) := str->splitstrl(lpath, "/");
+		if(!validrepo(repo) || revstr == nil || !validrev(revstr[1:]))
+			return badpath(path);
+		revstr = revstr[1:];
+
+		(rev, err) := findrev(repo, revstr);
+		if(err != nil)
+			bad(err);
+		
+		startrev := rev-Nchanges;
+		if(startrev < 0)
+			startrev = 0;
+		(changes, cerr) := readchangerange(repo, rev, startrev);
+		if(cerr != nil)
+			bad(cerr);
+
+		if(isshort) {
+			form.print("httpheaders", nil);
+			form.print("htmlstart", ("repo", repo)::nil);
+
+			tabargs := ("tabid", "changes")::("tabtitle", "changes")::("repo", repo)::nil;
+			if((oldrev := rev-len changes) >= 0)
+				tabargs = ("oldrev", string oldrev)::tabargs;
+			form.print("tablechangestart", tabargs);
+
+			for(; changes != nil; changes = tl changes) {
+				c := hd changes;
+				args := list of {
+					("repo", c.repo),
+					("rev", string c.rev),
+					("p1", prevstr(c.p1)),
+					("p2", prevstr(c.p2)),
+					("who", userstr(c.user)),
+					("when", whenstr(c.when)),
+					("why", title(c.msg)),
+				};
+				if(c.rev != 0) {
+					args = 
+					("reva", string (c.rev-1))::
+					("revb", string c.rev)::
+					args;
+				} else {
+					say(sprint("c.rev %d", c.rev));
+				}
+				form.print("rowchange", args);
+			}
+			form.print("tableend", nil);
+			form.print("htmlend", nil);
+		} else {
+			error("500", "not yet implemented");
+			fail("implement full log");
+		}
 
 	} else if(path == "style") {
 		form.print("style", nil);
@@ -258,12 +339,12 @@ init(nil: ref Draw->Context, nil: list of string)
 
 validrepo(s: string): int
 {
-	return str->drop(s, "0-9a-zA-Z") == nil;
+	return s != nil && str->drop(s, "0-9a-zA-Z") == nil;
 }
 
 validrev(s: string): int
 {
-	return s == "last" || str->drop(s, "0-9") == nil;
+	return s == "last" || s != nil && str->drop(s, "0-9") == nil;
 }
 
 validmanpath(s: string): int
@@ -280,6 +361,16 @@ substr(sub, s: string): int
 	return str->splitstrl(s, sub).t1 != nil;
 }
 
+findrev(repo, revstr: string): (int, string)
+{
+	if(revstr == "last")
+		return lastrev(repo);
+
+	(rev, rem) := str->toint(revstr, 10);
+	if(rem != nil)
+		return (0, sprint("bad revision number: %q", rem));
+	return (rev, nil);
+}
 
 prevstr(p: int): string
 {
@@ -327,29 +418,21 @@ Month: con 30*Day;
 Year: con 365*Day;
 
 timedivs := array[] of {Min, Hour, Day, Week, Month, Year};
-timestrs := array[] of {"min", "hour", "day", "week", "month", "year"};
+timestrs := array[] of {"mins", "hours", "days", "weeks", "months", "years"};
 
 whenstr(t: int): string
 {
 	t = daytime->now()-t;
-	say(sprint("whenstr, new t %d", t));
 
-	if(t < Min)
+	if(t < 2*Min)
 		return "just now";
 
-	n: int;
 	i := 1;
-	for(;;) {
-		if(i == len timedivs || t < timedivs[i]) {
-			n = t/timedivs[i-1];
-			break;
-		}
-		i++;
-	}
-	s := timestrs[i-1];
-	if(n != 1)
-		s += "s";
-	return string n+" "+s;
+	for(;;)
+		if(i == len timedivs || t < 2*timedivs[i])
+			return string (t/timedivs[i-1])+" "+timestrs[i-1];
+		else
+			i++;
 }
 
 lastrev(repo: string): (int, string)
@@ -384,10 +467,13 @@ breadkey(b: ref Iobuf, key: string): (string, string)
 	return (s[len keystr:], nil);
 }
 
-change2rssitem(c: ref Change): ref Rssgen->Item
+change2rssitem(c: ref Change, repotitle: int): ref Rssgen->Item
 {
 	url := sprint("http://%s/hg/%s/log/%d", env->getenv("SERVER_NAME"), c.repo, c.rev);
-	return ref Rssgen->Item(title(c.msg), url, c.msg, c.when, c.whentz, url, "hg"::nil);
+	t := string c.rev+": "+title(c.msg);
+	if(repotitle)
+		t = c.repo+" "+t;
+	return ref Rssgen->Item(t, url, c.msg, c.when, c.whentz, url, "hg"::nil);
 }
 
 readmanifest(repo: string, revstr: string): (list of string, string)
@@ -406,6 +492,18 @@ readmanifest(repo: string, revstr: string): (list of string, string)
 		l = s::l;
 	}
 	return (lists->reverse(l), nil);
+}
+
+readchangerange(repo: string, last, first: int): (list of ref Change, string)
+{
+	l: list of ref Change;
+	for(r := first; r <= last; r++) {
+		(c, err) := readchange(repo, string r);
+		if(err != nil)
+			return (nil, err);
+		l = c::l;
+	}
+	return (l, nil);
 }
 
 readchanges(): (list of ref Change, string)

@@ -1,2 +1,67 @@
-todo:
-- make diff treat non-existent files as empty files.  and perhaps use -u-like diffs.  for -u, there code in acme-sac.
+# summary
+
+this package implements a web frontend to hgfs, the mercurial file system.
+html pages are generated for the various views on mercurial repositories.
+
+the following pages are provided:
+
+- last commit message for each repository
+- links to often used files/information for a given repository, such man
+  pages it contains, .b & .m files, the latest .tgz, command to clone the
+  repository, etc.
+- rss feed of the previous two views
+- diff between any two revisions of a given repository
+- the man2html-formatted manual page of a given unprocessed man page in
+  a given repository, for a given file
+- last n commit messages for a given repository, in short or long format
+
+
+# download
+
+the homepage of this software is at
+
+	http://www.ueber.net/repo/r/hgweb
+
+on that page, commands to clone the repository can be found, and a link
+to the latest .tgz.
+
+
+# install
+
+make sure the packages "web" (see http://www.ueber.net/repo/r/web) and
+"scgid" (see http://www.ueber.net/repo/r/scgid) are installed.
+
+first make a file "mkconfig" similar to your inferno's installation
+mkconfig (symlink/bind it).  now type "mk" and then "mk install" to
+compile and install.  next, install the files in /lib into your inferno
+installation.
+
+
+# run
+
+running this can become quite complicated.  first of all, hgweb needs
+to be started by scgid, see its documentation for usage information.
+second, hgweb assumes /n/hg holds all repositories.  multiple hg/fs'en can
+easily be exported by styxlisten, and mounted using "mount -P", allowing
+you to restart the hg/fs'en+styxlisten without restarting the scgid.
+
+hgweb also links (on the webserver) to files named "../hg/$repository".
+the links in /lib/template/hgweb/* may have to be changed.  also, files
+in that directory contain instructions specific to my own installation,
+so be sure to look through them.
+
+
+# licence & author
+
+this code is in the public domain.  the code is written by mechiel
+lukkien, reachable at mechiel@xs4all.nl or mechiel@ueber.net.
+
+
+# todo
+- complete short log.  provide more links to get at later/earlier revisions.  provide links back to repo info page, and to diff, and probably more
+- implement full log
+- change httpd to allow listing on given prefix strings.  instead of just enabling it globally.  allows me to enable it for /hg/ but keep it disabled for other dirs.
+- add a view that, given a repo+path, lists the revisions the file was changed in.  one revision can have its changelog shown in full.
+- generate correct diffs, needs an "ndiff" that "patches one-way absent files into/out of existence".
+- for html of generated man pages, remove links to man & section index.
+- turn README's of repo into html by using something akin to markdown?  providing just a link to the README makes user have to click once more...

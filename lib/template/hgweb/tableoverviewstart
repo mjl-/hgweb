@@ -1,14 +1,11 @@
 <h1 id="%tabid%">%tabtitle%</h1>
-%if set oldrev%
-<a href="../log/short/%repo%/%oldrev%">older</a>
-%end%
-<a href="../log/full/%repo%/last">full log</a>
 <table class="status">
 	<thead>
 <tr>
+	<th class="repo">repo</th>
 	<th class="rev">rev</th>
 	<th class="when">when</th>
-	<th class="diff">diff</th>
+	<th class="tgz">snap</th>
 	<th class="why">why</th>
 </tr>
 	</thead>
