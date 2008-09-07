@@ -9,7 +9,7 @@
 </p>
 
 <p>
-	this page is served by the code in repository <a href="changes/hgweb">hgweb</a>, which uses styx/9p file servers provided by the code in repository <a href="changes/hgfs">hgfs</a>.  it's all in limbo.  you can mount the hgfs'en directly, from inferno:
+	this page is served by the code in repository <a href="r/hgweb">hgweb</a>, which uses styx/9p file servers provided by the code in repository <a href="r/hgfs">hgfs</a>.  it's all in limbo.  you can mount the hgfs'en directly, from inferno:
 </p>
 
 <code>

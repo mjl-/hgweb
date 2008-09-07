@@ -23,6 +23,8 @@ include "cgi.m";
 include "template.m";
 	template: Template;
 	Form: import template;
+include "rssgen.m";
+	rssgen: Rssgen;
 
 
 Hgweb: module {
@@ -56,6 +58,7 @@ modinit(): string
         str = load String String->PATH;
 	sh = load Sh Sh->PATH;
 	lists = load Lists Lists->PATH;
+	rssgen = load Rssgen Rssgen->PATH;
         cgi = load Cgi Cgi->PATH;
         template = load Template Template->PATH;
 	if(cgi == nil || template == nil)
@@ -78,7 +81,7 @@ init(nil: ref Draw->Context, nil: list of string)
 	path := env->getenv("PATH_INFO");
 	path = cgi->decode(path);
 
-	if(path == "changes") {
+	if(path == "") {
 		# read changes for all repo's
 
 		(cl, err) := readchanges();
@@ -101,7 +104,7 @@ init(nil: ref Draw->Context, nil: list of string)
 				("p1", prevstr(c.p1)),
 				("p2", prevstr(c.p2)),
 				("who", userstr(c.user)),
-				("when", whenstr(c.when, c.whentz)),
+				("when", whenstr(c.when)),
 				("why", title(c.msg)),
 				("printrepo", ""),
 			};
@@ -110,18 +113,17 @@ init(nil: ref Draw->Context, nil: list of string)
 		form.print("tablechangeend", nil);
 		form.print("htmlend", nil);
 
-	} else if(str->prefix("changes/", path)) {
-		cpath := path[len "changes/":];
-		if(!validrepo(cpath))
-			badpath(path);
-
+	} else if(str->prefix("r/", path)) {
 		repo: string;
 		isrss := 0;
-		if(suffix(".rss", cpath)) {
+		if(suffix(".rss", path)) {
 			isrss = 1;
-			repo = cpath[:len cpath-len ".rss"];
+			repo = path[len "r/":len path-len ".rss"];
 		} else
-			repo = cpath;
+			repo = path[len "r/":];
+
+		if(!validrepo(repo))
+			badpath(path);
 
 		# read last n changes for repo
 		(lrev, err) := lastrev(repo);
@@ -167,9 +169,15 @@ init(nil: ref Draw->Context, nil: list of string)
 		}
 
 		if(isrss) {
-			# xxx implement
-			error("500", "not yet implemented");
-			fail("changes/repo.rss not yet implemented");
+			items: list of ref Rssgen->Item;
+			for(; changes != nil; changes = tl changes)
+				items = change2rssitem(hd changes)::items;
+			title := sprint("changes for hg repo %q", repo);
+			url := sprint("http://%s/%sr/%s.rss", env->getenv("SERVER_NAME"), env->getenv("SCRIPT_NAME"), repo);
+			descr := sprint("last %d changes for the mercurial repository %#q", Nchanges, repo);
+			xml := rssgen->rssgen(title, url, descr, items);
+			sys->print("status: 200 OK\r\ncontent-type: text/xml; charset=utf-8\r\n\r\n%s", xml);
+			return;
 		}
 
 		form.print("httpheaders", nil);
@@ -186,7 +194,7 @@ init(nil: ref Draw->Context, nil: list of string)
 				("p1", prevstr(c.p1)),
 				("p2", prevstr(c.p2)),
 				("who", userstr(c.user)),
-				("when", whenstr(c.when, c.whentz)),
+				("when", whenstr(c.when)),
 				("why", title(c.msg)),
 			};
 			form.print("rowchange", args);
@@ -321,10 +329,10 @@ Year: con 365*Day;
 timedivs := array[] of {Min, Hour, Day, Week, Month, Year};
 timestrs := array[] of {"min", "hour", "day", "week", "month", "year"};
 
-whenstr(t, tz: int): string
+whenstr(t: int): string
 {
-	t += tz;
 	t = daytime->now()-t;
+	say(sprint("whenstr, new t %d", t));
 
 	if(t < Min)
 		return "just now";
@@ -332,7 +340,7 @@ whenstr(t, tz: int): string
 	n: int;
 	i := 1;
 	for(;;) {
-		if(t < timedivs[i] || i == len timedivs-1) {
+		if(i == len timedivs || t < timedivs[i]) {
 			n = t/timedivs[i-1];
 			break;
 		}
@@ -374,6 +382,12 @@ breadkey(b: ref Iobuf, key: string): (string, string)
 	if(!str->prefix(keystr, s))
 		return (nil, sprint("expected key %q, saw line %q", key, s));
 	return (s[len keystr:], nil);
+}
+
+change2rssitem(c: ref Change): ref Rssgen->Item
+{
+	url := sprint("http://%s/hg/%s/log/%d", env->getenv("SERVER_NAME"), c.repo, c.rev);
+	return ref Rssgen->Item(title(c.msg), url, c.msg, c.when, c.whentz, url, "hg"::nil);
 }
 
 readmanifest(repo: string, revstr: string): (list of string, string)

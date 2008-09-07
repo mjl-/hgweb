@@ -1,6 +1,6 @@
 <tr>
 %if set printrepo%
-	<td><a href="changes/%repo%">%repo%</a></td>
+	<td><a href="r/%repo%">%repo%</a></td>
 %end%
 	<td><a href="../../hg/%repo%/log/%rev%">%rev%</a></td>
 	<td>%when%</td>

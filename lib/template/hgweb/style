@@ -16,6 +16,7 @@ h1	{ margin-left: -1.5em; }
 body	{ margin-left: 3em; }
 
 body > pre	{ padding: 1.5em; border: 1pt solid rgb(200, 200, 200); }
+div.overview	{ float: left; margin-left: -1.5em; font-size: 0.8em; }
 div.links	{ font-size: 0.8em; text-align: right; }
 tt, code	{ background-color: #ffb; }
 body > code	{ margin: 1.5em; padding: 0.3em; padding-left: 1em; padding-right: 3em; }
@@ -24,3 +25,4 @@ table.status td, table.status th	{ font-size: 0.9em; }
 table.status td	{ padding-right: 1.5em; }
 table.status th.who	{ width: 10em; }
 table.status th.when	{ width: 8em; }
+
