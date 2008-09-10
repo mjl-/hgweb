@@ -1,0 +1,10 @@
+<div class="overview">
+<a href="../../../">repository overview</a>,
+<a href="../../../r/%&repo%">%repo%</a>
+</div>
+
+<div class="links">
+%foreach revs%
+	<a href="#r%rev%">%rev%</a>
+%done%
+</div>

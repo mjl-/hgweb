@@ -1,8 +1,11 @@
 <h1 id="%tabid%">%tabtitle%</h1>
-%if set oldrev%
-<a href="../log/short/%repo%/%oldrev%">older</a>
-%end%
+<div class="navchange">
 <a href="../log/full/%repo%/last">full log</a>
+%if set oldrev%
+<a href="../log/short/%repo%/%oldrev%">-20</a>
+%end%
+</div>
+
 <table class="status">
 	<thead>
 <tr>

@@ -26,3 +26,10 @@ table.status td	{ padding-right: 1.5em; }
 table.status th.who	{ width: 10em; }
 table.status th.when	{ width: 8em; }
 
+table.full	{ margin-bottom: 1em; margin-top: 1em; }
+table.full td	{ font-size: 0.9em; vertical-align: top; }
+table.full pre	{ font-size: 1.1em; }
+table.full td.key	{ background: rgb(235, 235, 255); }
+hr	{ border: 1px solid rgb(170, 170, 255); }
+div.navfull, div.navshort, div.navchange	{ padding: 0.5em; margin-top: 1em; background: rgb(220, 220, 220); }
+div.navfull a, div.navshort a, div.navchange a	{ font-weight: bold; }

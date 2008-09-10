@@ -1,0 +1,9 @@
+<div class="navfull">
+<a href="../../short/%repo%/%rev%">short log</a>
+<a href="last">last</a>
+<a href="%p100%">+100</a>
+<a href="%p20%">+20</a>
+<a href="%m20%">-20</a>
+<a href="%m100%">-100</a>
+<a href="0">first</a>
+</div>

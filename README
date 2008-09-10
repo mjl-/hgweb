@@ -58,10 +58,10 @@ lukkien, reachable at mechiel@xs4all.nl or mechiel@ueber.net.
 
 
 # todo
-- complete short log.  provide more links to get at later/earlier revisions.  provide links back to repo info page, and to diff, and probably more
-- implement full log
-- change httpd to allow listing on given prefix strings.  instead of just enabling it globally.  allows me to enable it for /hg/ but keep it disabled for other dirs.
-- add a view that, given a repo+path, lists the revisions the file was changed in.  one revision can have its changelog shown in full.
-- generate correct diffs, needs an "ndiff" that "patches one-way absent files into/out of existence".
+- add a view that, given a repo+path, lists the revisions the file was
+  changed in.  one revision can have its changelog shown in full.
+- generate correct diffs, needs an "ndiff" that "patches one-way absent
+  files into/out of existence".
 - for html of generated man pages, remove links to man & section index.
-- turn README's of repo into html by using something akin to markdown?  providing just a link to the README makes user have to click once more...
+- turn README's of repo into html by using something akin to markdown?
+  providing just a link to the README makes user have to click once more...

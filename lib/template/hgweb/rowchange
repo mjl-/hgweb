@@ -1,5 +1,5 @@
 <tr>
-	<td><a href="../../hg/%repo%/log/%rev%">%rev%</a></td>
+	<td><a href="../log/full/%&repo%/%pagerev%#r%rev%">%rev%</a></td>
 	<td>%when%</td>
 %if not set reva%
 	<td>-</td>

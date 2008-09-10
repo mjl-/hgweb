@@ -1,0 +1,48 @@
+<table class="full">
+<tr><td class="key" id="r%rev%">revision</td>
+<td>%rev%</td></tr>
+
+<tr><td class="key">parents</td>
+<td>
+%if set p1%
+<a href="%p1%">%p1%</a>
+%end%
+%if set p2%
+<a href="%p1%">%p2%</a>
+%end%
+</td></tr>
+
+<tr><td class="key">user</td>
+<td>%user%</td></tr>
+
+<tr><td class="key">when</td>
+<td>%when%</td></tr>
+
+<tr><td class="key">date</td>
+<td>%date%</td></tr>
+
+<tr><td class="key">files</td>
+<td>
+<ul>
+%foreach files%
+	<li><a href="../../../../hg/%&repo%/files/%&rev%/%&file%">%file%</a></li>
+%done%
+</ul>
+</td></tr>
+
+<tr><td class="key">diff</td>
+<td>
+%if set reva%
+	<a href="../../../diff/%repo%-%reva%-%revb%.diff">%repo%-%reva%-%revb%.diff</a>
+%end%
+</td></tr>
+
+<tr><td class="key">snapshot</td>
+<td>
+<a href="../../../../hg/%&repo%/tgz/%repo%-%rev%.tgz">%repo%-%rev%.tgz</a>
+</td></tr>
+
+<tr><td class="key">message</td>
+<td><pre>%msg%</pre></td></tr>
+</table>
+<hr/>

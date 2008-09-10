@@ -1,0 +1,10 @@
+<tr>
+	<td><a href="../../full/%repo%/%pagerev%#r%rev%">%rev%</a></td>
+	<td>%when%</td>
+%if not set reva%
+	<td>-</td>
+%else%
+	<td><a href="../../../diff/%repo%-%reva%-%revb%.diff">diff</a></td>
+%end%
+	<td>%why%</td>
+</tr>

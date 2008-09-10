@@ -203,6 +203,7 @@ init(nil: ref Draw->Context, nil: list of string)
 			c := hd changes;
 			args := list of {
 				("repo", c.repo),
+				("pagerev", string lrev),
 				("rev", string c.rev),
 				("p1", prevstr(c.p1)),
 				("p2", prevstr(c.p2)),
@@ -292,42 +293,78 @@ init(nil: ref Draw->Context, nil: list of string)
 		if(cerr != nil)
 			bad(cerr);
 
+		(lrev, lerr) := lastrev(repo);
+		if(lerr != nil)
+			bad(lerr);
+
+		m20 := string max(rev-20, 0);
+		m100 := string max(rev-100, 0);
+		p20 := string min(rev+20, lrev);
+		p100 := string min(rev+100, lrev);
+
+		form.print("httpheaders", nil);
+		form.print("htmlstart", ("repo", repo)::nil);
+
+		revs: list of list of (string, string);
+		for(l := changes; l != nil; l = tl l)
+			revs = (("rev", string (hd l).rev)::nil)::revs;
+		revs = lists->reverse(revs);
+		form.printl("introlog", ("repo", repo)::nil, ("revs", revs)::nil);
+
+		tabargs := list of {
+			("m20",	m20),
+			("m100",	m100),
+			("p20",	p20),
+			("p100",	p100),
+			("rev",	revstr),
+			("tabid", "log"),
+			("tabtitle", "log"),
+			("repo", repo),
+		};
+		if((oldrev := rev-len changes) >= 0)
+			tabargs = ("oldrev", string oldrev)::tabargs;
+
+		entry := "tablefullchange";
 		if(isshort) {
-			form.print("httpheaders", nil);
-			form.print("htmlstart", ("repo", repo)::nil);
+			form.print("tablelogstart", tabargs);
+			entry = "rowshortlog";
+		} else
+			form.print("linksfulllog", tabargs);
 
-			tabargs := ("tabid", "changes")::("tabtitle", "changes")::("repo", repo)::nil;
-			if((oldrev := rev-len changes) >= 0)
-				tabargs = ("oldrev", string oldrev)::tabargs;
-			form.print("tablechangestart", tabargs);
-
-			for(; changes != nil; changes = tl changes) {
-				c := hd changes;
-				args := list of {
-					("repo", c.repo),
-					("rev", string c.rev),
-					("p1", prevstr(c.p1)),
-					("p2", prevstr(c.p2)),
-					("who", userstr(c.user)),
-					("when", whenstr(c.when)),
-					("why", title(c.msg)),
-				};
-				if(c.rev != 0) {
-					args = 
-					("reva", string (c.rev-1))::
-					("revb", string c.rev)::
-					args;
-				} else {
-					say(sprint("c.rev %d", c.rev));
-				}
-				form.print("rowchange", args);
+		for(; changes != nil; changes = tl changes) {
+			c := hd changes;
+			args := list of {
+				("repo", c.repo),
+				("pagerev", revstr),
+				("rev", string c.rev),
+				("p1", prevstr(c.p1)),
+				("p2", prevstr(c.p2)),
+				("nodeidman", c.nodeidman),
+				("who", userstr(c.user)),
+				("user", c.user),
+				("when", whenstr(c.when)),
+				("date", c.date),
+				("why", title(c.msg)),
+				("msg", c.msg),
+			};
+			if(c.rev != 0) {
+				args = 
+				("reva", string (c.rev-1))::
+				("revb", string c.rev)::
+				args;
 			}
-			form.print("tableend", nil);
-			form.print("htmlend", nil);
-		} else {
-			error("500", "not yet implemented");
-			fail("implement full log");
+			files: list of list of (string, string);
+			for(f := c.files; f != nil; f = tl f)
+				files = (("file", hd f)::nil)::files;
+			files = lists->reverse(files);
+			form.printl(entry, args, ("files", files)::nil);
 		}
+
+		if(isshort)
+			form.print("tableend", nil);
+		else
+			form.print("linksfulllog", tabargs);
+		form.print("htmlend", nil);
 
 	} else if(path == "style") {
 		form.print("style", nil);
@@ -335,6 +372,20 @@ init(nil: ref Draw->Context, nil: list of string)
 	} else {
 		badpath(path);
 	}
+}
+
+min(a, b: int): int
+{
+	if(a < b)
+		return a;
+	return b;
+}
+
+max(a, b: int): int
+{
+	if(a > b)
+		return a;
+	return b;
 }
 
 validrepo(s: string): int

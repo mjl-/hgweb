@@ -1,0 +1,19 @@
+<div class="navshort">
+<a href="../../full/%repo%/%rev%">full log</a>
+<a href="last">last</a>
+<a href="%p100%">+100</a>
+<a href="%p20%">+20</a>
+<a href="%m20%">-20</a>
+<a href="%m100%">-100</a>
+<a href="0">first</a>
+</div>
+
+<table class="status">
+	<thead>
+<tr>
+	<th class="rev">rev</th>
+	<th class="when">when</th>
+	<th class="diff">diff</th>
+	<th class="why">why</th>
+</tr>
+	</thead>
