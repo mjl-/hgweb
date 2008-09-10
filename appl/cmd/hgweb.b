@@ -262,7 +262,7 @@ init(nil: ref Draw->Context, nil: list of string)
 		(ok, nil) := sys->stat(p);
 		if(ok != 0)
 			badpath(path);
-		cmd := sprint("man2html %q", p);
+		cmd := sprint("man2html %q | sed 's,\\[<a href=\"\\.\\./index\\.html\">manual index</a>\\]\\[<a href=\"INDEX\\.html\">section index</a>\\]<p><DL>,,' | sed 's!<A href=\"\\.\\./[0-9][0-9]*/[a-zA-Z0-9-_]*\\.html\"><I>(.*)</I>\\(([0-9][0-9]*)\\)</A>!\\1\\(\\2\\)!'", p);
 		form.print("httpheaders", nil);
 		err := sh->system(nil, cmd);
 		if(err != nil && err != "some")

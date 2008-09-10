@@ -62,6 +62,5 @@ lukkien, reachable at mechiel@xs4all.nl or mechiel@ueber.net.
   changed in.  one revision can have its changelog shown in full.
 - generate correct diffs, needs an "ndiff" that "patches one-way absent
   files into/out of existence".
-- for html of generated man pages, remove links to man & section index.
 - turn README's of repo into html by using something akin to markdown?
   providing just a link to the README makes user have to click once more...
