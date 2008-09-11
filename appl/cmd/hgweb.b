@@ -238,7 +238,7 @@ init(nil: ref Draw->Context, nil: list of string)
 			badpath(path);
 		brevstr = brevstr[1:];
 
-		cmd := sprint("diff -r /n/hg/%s/files/%s /n/hg/%s/files/%s", repo, arevstr, repo, brevstr);
+		cmd := sprint("ndiff -rn /n/hg/%s/files/%s /n/hg/%s/files/%s", repo, arevstr, repo, brevstr);
 		
 		sys->print("status: 200 OK\r\ncontent-type: text/plain; charset=utf-8\r\n\r\n");
 		err := sh->system(nil, cmd);

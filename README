@@ -36,6 +36,14 @@ mkconfig (symlink/bind it).  now type "mk" and then "mk install" to
 compile and install.  next, install the files in /lib into your inferno
 installation.
 
+to generate diffs for file trees, hgweb uses a modified version of
+inferno's diff(1).  it is called ndiff and can be created by applying
+the patch ndiff.diff to inferno's appl/cmd/diff.b (be sure to copy that
+to the file name ndiff.b before patching).  the patch adds flag -n
+(which only does anything when -r is specified too), which treats absent
+files as /dev/null when calculating the diff.  this shows the contents
+of added and removed files.
+
 
 # run
 
@@ -60,7 +68,7 @@ lukkien, reachable at mechiel@xs4all.nl or mechiel@ueber.net.
 # todo
 - add a view that, given a repo+path, lists the revisions the file was
   changed in.  one revision can have its changelog shown in full.
-- generate correct diffs, needs an "ndiff" that "patches one-way absent
-  files into/out of existence".
+- allow seeing patches files (not dirs, that is harder) of a revision too?
+  need to replace max 1 absent file by /dev/null.
 - turn README's of repo into html by using something akin to markdown?
   providing just a link to the README makes user have to click once more...
