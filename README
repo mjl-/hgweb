@@ -28,8 +28,8 @@ to the latest .tgz.
 
 # install
 
-make sure the packages "web" (see http://www.ueber.net/repo/r/web) and
-"scgid" (see http://www.ueber.net/repo/r/scgid) are installed.
+make sure the packages "web", "scgid" and "textmangle" installed (see
+http://www.ueber.net/repo/r/$packagename).
 
 first make a file "mkconfig" similar to your inferno's installation
 mkconfig (symlink/bind it).  now type "mk" and then "mk install" to
@@ -72,3 +72,4 @@ lukkien, reachable at mechiel@xs4all.nl or mechiel@ueber.net.
   need to replace max 1 absent file by /dev/null.
 - turn README's of repo into html by using something akin to markdown?
   providing just a link to the README makes user have to click once more...
+- better error handling.  the wrong error reasons might be given sometimes.

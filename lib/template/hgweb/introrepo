@@ -10,10 +10,21 @@
 </div>
 
 
+%if set readmetxt%
 <h1 id="about">about</h1>
 <p>
-	see the <a href="../../hg/%&repo%/files/last/README">README</a> for an introduction to this package.
+	information about this package can be found in the <a href="../../hg/%&repo%/files/last/README">README</a>.  here is a html-version of the README:
 </p>
+
+<div class="readme">
+%!readmetxt%
+</div>
+%else
+<h1 id="about">about</h1>
+<p>
+	this package does not (yet) have a README.  browsing around the <a href="../../hg/%&repo%/files/last/">files in this package</a> could help.
+</p>
+%end
 
 <h1 id="clone">clone</h1>
 <p>

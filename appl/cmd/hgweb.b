@@ -25,6 +25,9 @@ include "template.m";
 	Form: import template;
 include "rssgen.m";
 	rssgen: Rssgen;
+include "textmangle.m";
+	textmangle: Textmangle;
+	Mark: import Textmangle;
 
 
 Hgweb: module {
@@ -61,10 +64,12 @@ modinit(): string
 	rssgen = load Rssgen Rssgen->PATH;
         cgi = load Cgi Cgi->PATH;
         template = load Template Template->PATH;
-	if(cgi == nil || template == nil)
-		return sprint("loading cgi or template: %r");
+	textmangle = load Textmangle Textmangle->PATH;
+	if(cgi == nil || template == nil || textmangle == nil)
+		return sprint("loading cgi, template or textmangle: %r");
 	cgi->init();
 	template->init();
+	textmangle->init();
 
 	return nil;
 }
@@ -190,9 +195,26 @@ init(nil: ref Draw->Context, nil: list of string)
 			return;
 		}
 
+		readmep := sprint("/n/hg/%q/files/last/README", repo);
+		fd := sys->open(readmep, Sys->OREAD);
+		txt: string;
+		if(fd != nil) {
+			(lines, rerr) := textmangle->read(fd);
+			if(rerr != nil)
+				bad(rerr);
+			t := textmangle->parse(lines);
+			mangleincrhead(t);
+			txt = textmangle->tohtmlpre(t);
+		}
+		fd = nil;
+
 		form.print("httpheaders", nil);
 		form.print("htmlstart", ("repo", repo)::nil);
-		form.printl("introrepo", ("repo", repo)::("lastrev", string lrev)::nil, ("manpages", mans)::("bfiles", bfiles)::("mfiles", mfiles)::nil);
+
+		introargs := ("repo", repo)::("lastrev", string lrev)::nil;
+		if(txt != nil)
+			introargs = ("readmetxt", txt)::introargs;
+		form.printl("introrepo", introargs, ("manpages", mans)::("bfiles", bfiles)::("mfiles", mfiles)::nil);
 
 		tabargs := ("tabid", "changes")::("tabtitle", "changes")::("repo", repo)::nil;
 		if((oldrev := lrev-len changes) >= 0)
@@ -684,6 +706,21 @@ readchange(repo: string, revstr: string): (ref Change, string)
 	}
 	c.msg = string msg;
 	return (c, nil);
+}
+
+mangleincrhead(mm: ref Mark)
+{
+	pick m := mm {
+	Seq or List =>
+		for(l := m.l; l != nil; l = tl l)
+			mangleincrhead(hd l);
+	Descr =>
+		for(l := m.l; l != nil; l = tl l)
+			mangleincrhead((hd l).s);
+	Head =>
+		m.level++;
+	* =>	; # nothing
+	};
 }
 
 badpath(path: string)

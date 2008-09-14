@@ -33,3 +33,7 @@ table.full td.key	{ background: rgb(235, 235, 255); }
 hr	{ border: 1px solid rgb(170, 170, 255); }
 div.navfull, div.navshort, div.navchange	{ padding: 0.5em; margin-top: 1em; background: rgb(220, 220, 220); }
 div.navfull a, div.navshort a, div.navchange a	{ font-weight: bold; }
+
+div.readme	{ padding-left: 4em; border-left: 2px solid #d0d0f0; }
+div.readme tt	{ background-color: white; }
+div.readme h2	{ margin-left: -1.5em; }
