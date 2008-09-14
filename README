@@ -20,7 +20,7 @@ the following pages are provided:
 
 the homepage of this software is at
 
-	http://www.ueber.net/repo/r/hgweb
+	http://www.ueber.net/code/r/hgweb
 
 on that page, commands to clone the repository can be found, and a link
 to the latest .tgz.
@@ -29,7 +29,7 @@ to the latest .tgz.
 # install
 
 make sure the packages "web", "scgid" and "textmangle" installed (see
-http://www.ueber.net/repo/r/$packagename).
+http://www.ueber.net/code/r/$packagename).
 
 first make a file "mkconfig" similar to your inferno's installation
 mkconfig (symlink/bind it).  now type "mk" and then "mk install" to
