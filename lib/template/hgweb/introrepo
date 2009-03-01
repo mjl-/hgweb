@@ -30,9 +30,11 @@
 <p>
 	to clone (and pull from) this repository, use the url <tt>static-http://www.ueber.net/who/mjl/hg/%repo%/</tt>.  as of yet, there is no non-static-http access.  thus, to clone, issue the following command:
 </p>
+<div>
 <code>
 	hg clone static-http://www.ueber.net/who/mjl/hg/%repo%/
 </code>
+</div>
 
 <h1 id="tgz">tgz</h1>
 <p>

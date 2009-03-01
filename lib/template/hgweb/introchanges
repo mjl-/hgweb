@@ -12,7 +12,9 @@
 	this page is served by the code in repository <a href="r/hgweb">hgweb</a>, which uses styx/9p file servers provided by the code in repository <a href="r/hgfs">hgfs</a>.  it's all in limbo.  you can mount the hgfs'en directly, from inferno:
 </p>
 
+<div>
 <code>
 	mount -A -P net!knaagkever.ueber.net!6867 /n/hg
 </code>
+</div>
 

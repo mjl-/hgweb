@@ -1,4 +1,5 @@
 <table class="full">
+<tbody>
 <tr><td class="key" id="r%rev%">revision</td>
 <td>%rev%</td></tr>
 
@@ -44,5 +45,6 @@
 
 <tr><td class="key">message</td>
 <td><pre>%msg%</pre></td></tr>
+</tbody>
 </table>
 <hr/>
