@@ -38,7 +38,7 @@ Hgweb: module {
 
 dflag := 1;
 Nchanges:	con 20;
-Titlelen:	con 90;
+Titlelen:	con 70;
 
 
 Change: adt {
@@ -461,8 +461,8 @@ title(s: string): string
 {
 	(f, rem) := str->splitstrl(s, "\n");
 	if(len f > Titlelen)
-		f = f[:Titlelen-4];
-	if(rem != "" && rem != "\n")
+		f = f[:Titlelen-4]+"...";
+	else if(rem != nil && rem != "\n")
 		f += " ...";
 	return f;
 }
