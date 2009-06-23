@@ -94,7 +94,7 @@ init(nil: ref Draw->Context, nil: list of string)
 			return form.print("error", ("error", err)::nil);
 
 		form.print("httpheaders", nil);
-		form.print("htmlstart", ("repo", "")::nil);
+		form.print("htmlstart", ("repo", "index")::nil);
 		form.print("introchanges", nil);
 
 		form.print("tableoverviewstart", ("tabid", "lastrepochanges")::("tabtitle", "last repository changes")::nil);
@@ -155,14 +155,21 @@ init(nil: ref Draw->Context, nil: list of string)
 			badrepo(repo);
 
 		mans: list of list of (string, string); # keys: name, section
-		bfiles: list of list of (string, string); # keys: path
-		mfiles: list of list of (string, string); # keys: path
+		bfiles, mfiles, cfiles, hfiles, sfiles, pyfiles: list of list of (string, string); # keys: path
 		for(l := paths; l != nil; l = tl l) {
 			p := hd l;
 			if(suffix(".b", p))
 				bfiles = list of {("path", p)}::bfiles;
 			else if(suffix(".m", p) && str->prefix("module/", p))
 				mfiles = list of {("path", p)}::mfiles;
+			else if(suffix(".h", p))
+				hfiles = list of {("path", p)}::hfiles;
+			else if(suffix(".c", p))
+				cfiles = list of {("path", p)}::cfiles;
+			else if(suffix(".s", p))
+				sfiles = list of {("path", p)}::sfiles;
+			else if(suffix(".py", p))
+				pyfiles = list of {("path", p)}::pyfiles;
 			else if(str->prefix("man/", p)) {
 				p = p[len "man/":];
 				(sec, name) := str->splitstrl(p, "/");
@@ -174,6 +181,10 @@ init(nil: ref Draw->Context, nil: list of string)
 		mans = lists->reverse(mans);
 		bfiles = lists->reverse(bfiles);
 		mfiles = lists->reverse(mfiles);
+		cfiles = lists->reverse(cfiles);
+		hfiles = lists->reverse(hfiles);
+		sfiles = lists->reverse(sfiles);
+		pyfiles = lists->reverse(pyfiles);
 
 		# read last n changes
 		startrev := lrev-Nchanges;
@@ -214,7 +225,16 @@ init(nil: ref Draw->Context, nil: list of string)
 		introargs := ("repo", repo)::("lastrev", string lrev)::nil;
 		if(txt != nil)
 			introargs = ("readmetxt", txt)::introargs;
-		form.printl("introrepo", introargs, ("manpages", mans)::("bfiles", bfiles)::("mfiles", mfiles)::nil);
+		introlargs := list of {
+			("manpages", mans),
+			("bfiles", bfiles),
+			("mfiles", mfiles),
+			("hfiles", hfiles),
+			("cfiles", cfiles),
+			("sfiles", sfiles),
+			("pyfiles", pyfiles),
+		};
+		form.printl("introrepo", introargs, introlargs);
 
 		tabargs := ("tabid", "changes")::("tabtitle", "changes")::("repo", repo)::nil;
 		if((oldrev := lrev-len changes) >= 0)

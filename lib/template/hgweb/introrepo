@@ -73,3 +73,39 @@
 %done%
 </ul>
 %end%
+
+%if length hfiles != 0%
+<h2>c header files:</h2>
+<ul>
+%foreach hfiles%
+	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+%done%
+</ul>
+%end%
+
+%if length cfiles != 0%
+<h2>c source files:</h2>
+<ul>
+%foreach cfiles%
+	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+%done%
+</ul>
+%end%
+
+%if length sfiles != 0%
+<h2>assembler files:</h2>
+<ul>
+%foreach sfiles%
+	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+%done%
+</ul>
+%end%
+
+%if length pyfiles != 0%
+<h2>python source files:</h2>
+<ul>
+%foreach pyfiles%
+	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+%done%
+</ul>
+%end%
