@@ -47,6 +47,7 @@ Change: adt {
 	nodeidman:	string;
 	user, date:	string;
 	when, whentz:	int;
+	branch:		string;
 	files:		list of string;
 	msg:		string;
 };
@@ -112,6 +113,8 @@ init(nil: ref Draw->Context, nil: list of string)
 				("when", whenstr(c.when)),
 				("why", title(c.msg)),
 			};
+			if(c.branch != nil)
+				args = ("branch", c.branch)::args;
 			form.print("rowoverview", args);
 		}
 		form.print("tableend", nil);
@@ -253,6 +256,8 @@ init(nil: ref Draw->Context, nil: list of string)
 				("when", whenstr(c.when)),
 				("why", title(c.msg)),
 			};
+			if(c.branch != nil)
+				args = ("branch", c.branch)::args;
 			if(c.rev != 0) {
 				args = 
 				("reva", string (c.rev-1))::
@@ -389,6 +394,8 @@ init(nil: ref Draw->Context, nil: list of string)
 				("why", title(c.msg)),
 				("msg", c.msg),
 			};
+			if(c.branch != nil)
+				args = ("branch", c.branch)::args;
 			if(c.rev != 0) {
 				args = 
 				("reva", string (c.rev-1))::
@@ -695,6 +702,13 @@ readchange(repo: string, revstr: string): (ref Change, string)
 		return (nil, sprint("malformed timestamps, %q", date));
 
 	s := b.gets('\n');
+	if(str->prefix("branch: ", s)) {
+		if(s[len s-1] == '\n')
+			s = s[:len s-1];
+		c.branch = s[len "branch: ":];
+		s = b.gets('\n');
+	}
+
 	if(s != "files changed:\n")
 		return (nil, sprint("expected list of changed files, saw %q", s));
 

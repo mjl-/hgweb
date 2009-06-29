@@ -70,6 +70,4 @@ lukkien, reachable at mechiel@xs4all.nl or mechiel@ueber.net.
   changed in.  one revision can have its changelog shown in full.
 - allow seeing patches files (not dirs, that is harder) of a revision too?
   need to replace max 1 absent file by /dev/null.
-- turn README's of repo into html by using something akin to markdown?
-  providing just a link to the README makes user have to click once more...
 - better error handling.  the wrong error reasons might be given sometimes.
