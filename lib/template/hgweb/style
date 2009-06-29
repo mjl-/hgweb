@@ -37,3 +37,7 @@ div.navfull a, div.navshort a, div.navchange a	{ font-weight: bold; }
 div.readme	{ padding-left: 4em; border-left: 2px solid #d0d0f0; }
 div.readme tt	{ background-color: white; }
 div.readme h2	{ margin-left: -1.5em; }
+
+code	{ margin-left: 4em; }
+
+.nodeid, a.nodeid	{ font-family: monospace; }

@@ -66,6 +66,8 @@ lukkien, reachable at mechiel@xs4all.nl or mechiel@ueber.net.
 
 
 # todo
+
+- the url's should be more repo-centric, not the current function-centric.
 - add a view that, given a repo+path, lists the revisions the file was
   changed in.  one revision can have its changelog shown in full.
 - allow seeing patches files (not dirs, that is harder) of a revision too?

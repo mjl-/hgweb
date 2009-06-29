@@ -1,7 +1,7 @@
 <table class="full">
 <tbody>
-<tr><td class="key" id="r%rev%">revision</td>
-<td>%rev%</td></tr>
+<tr id="n%nodeid%"><td class="key" id="r%rev%">revision</td>
+<td><a href="#r%rev%">%rev%</a> <a href="%nodeid%#n%nodeid%" class="nodeid">%nodeid%</a><a href="%nodeid%#n%nodeid%" class="nodeid">%remnodeid%</a></td></tr>
 
 <tr><td class="key">parents</td>
 <td>

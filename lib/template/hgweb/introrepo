@@ -13,7 +13,7 @@
 %if set readmetxt%
 <h1 id="about">about</h1>
 <p>
-	information about this package can be found in the <a href="../../hg/%&repo%/files/last/README">README</a>.  here is a html-version of the README:
+	information about this package can be found in the <a href="../../hg/%&repo%/files/tip/README">README</a>.  here is a html-version of the README:
 </p>
 
 <div class="readme">
@@ -22,14 +22,22 @@
 %else
 <h1 id="about">about</h1>
 <p>
-	this package does not (yet) have a README.  browsing around the <a href="../../hg/%&repo%/files/last/">files in this package</a> could help.
+	this package does not (yet) have a README.  browsing around the <a href="../../hg/%&repo%/files/tip/">files in this package</a> could help.
 </p>
 %end
 
 <h1 id="clone">clone</h1>
 <p>
-	to clone (and pull from) this repository, use the url <tt>static-http://www.ueber.net/who/mjl/hg/%repo%/</tt>.  as of yet, there is no non-static-http access.  thus, to clone, issue the following command:
+	to clone &amp; pull:
 </p>
+<div>
+<code>
+	hg clone http://www.ueber.net/hgsrv/%repo%/
+</div>
+</code>
+<div>
+or
+</div>
 <div>
 <code>
 	hg clone static-http://www.ueber.net/who/mjl/hg/%repo%/
@@ -43,7 +51,7 @@
 
 <h1 id="contents">contents</h1>
 <p>
-	the files in the latest revision can be found at <a href="../../hg/%&repo%/files/last/">/hg/%&repo%/files/last/</a>.  a specific revision can be access by replacing "last" with the revision number.
+	the files in the latest revision can be found at <a href="../../hg/%&repo%/files/tip/">/hg/%&repo%/files/tip/</a>.  a specific revision can be access by replacing "tip" with the revision number, (partial) nodeid or tag name.
 	a few direct links to useful files in the latest revision:
 </p>
 
@@ -51,7 +59,7 @@
 <h2>manual pages:</h2>
 <ul>
 %foreach manpages%
-	<li><a href="../man/%&repo%/last/man/%section%/%name%.html">%name%(%section%)</a></li>
+	<li><a href="../man/%&repo%/tip/man/%section%/%name%.html">%name%(%section%)</a></li>
 %done%
 </ul>
 %end%
@@ -60,7 +68,7 @@
 <h2>limbo module files:</h2>
 <ul>
 %foreach mfiles%
-	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+	<li><a href="../../hg/%&repo%/files/tip/%&path%">%path%</a></li>
 %done%
 </ul>
 %end%
@@ -69,7 +77,7 @@
 <h2>limbo source files:</h2>
 <ul>
 %foreach bfiles%
-	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+	<li><a href="../../hg/%&repo%/files/tip/%&path%">%path%</a></li>
 %done%
 </ul>
 %end%
@@ -78,7 +86,7 @@
 <h2>c header files:</h2>
 <ul>
 %foreach hfiles%
-	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+	<li><a href="../../hg/%&repo%/files/tip/%&path%">%path%</a></li>
 %done%
 </ul>
 %end%
@@ -87,7 +95,7 @@
 <h2>c source files:</h2>
 <ul>
 %foreach cfiles%
-	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+	<li><a href="../../hg/%&repo%/files/tip/%&path%">%path%</a></li>
 %done%
 </ul>
 %end%
@@ -96,7 +104,7 @@
 <h2>assembler files:</h2>
 <ul>
 %foreach sfiles%
-	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+	<li><a href="../../hg/%&repo%/files/tip/%&path%">%path%</a></li>
 %done%
 </ul>
 %end%
@@ -105,7 +113,7 @@
 <h2>python source files:</h2>
 <ul>
 %foreach pyfiles%
-	<li><a href="../../hg/%&repo%/files/last/%&path%">%path%</a></li>
+	<li><a href="../../hg/%&repo%/files/tip/%&path%">%path%</a></li>
 %done%
 </ul>
 %end%

@@ -1,6 +1,6 @@
 <div class="navshort">
 <a href="../../full/%repo%/%rev%">full log</a>
-<a href="last">last</a>
+<a href="tip">tip</a>
 <a href="%p100%">+100</a>
 <a href="%p20%">+20</a>
 <a href="%m20%">-20</a>
@@ -12,6 +12,7 @@
 	<thead>
 <tr>
 	<th class="rev">rev</th>
+	<th class="hnodeid">nodeid</th>
 	<th class="when">when</th>
 	<th class="diff">diff</th>
 	<th class="why">why</th>

@@ -44,6 +44,7 @@ Titlelen:	con 70;
 Change: adt {
 	repo:		string;
 	rev, p1, p2:	int;
+	nodeid:		string;
 	nodeidman:	string;
 	user, date:	string;
 	when, whentz:	int;
@@ -107,6 +108,9 @@ init(nil: ref Draw->Context, nil: list of string)
 			args := list of {
 				("repo", c.repo),
 				("rev", string c.rev),
+				("nodeid", c.nodeid[:12]),
+				("fullnodeid", c.nodeid),
+				("remnodeid", c.nodeid[12:]),
 				("p1", prevstr(c.p1)),
 				("p2", prevstr(c.p2)),
 				("who", userstr(c.user)),
@@ -143,7 +147,7 @@ init(nil: ref Draw->Context, nil: list of string)
 		} else
 			repo = path[len "r/":];
 
-		if(!validrepo(repo))
+		if(!validelem(repo))
 			badpath(path);
 
 		# read last rev number for repo
@@ -209,7 +213,7 @@ init(nil: ref Draw->Context, nil: list of string)
 			return;
 		}
 
-		readmep := sprint("/n/hg/%q/files/last/README", repo);
+		readmep := sprint("/n/hg/%q/files/tip/README", repo);
 		fd := sys->open(readmep, Sys->OREAD);
 		txt: string;
 		if(fd != nil) {
@@ -250,6 +254,9 @@ init(nil: ref Draw->Context, nil: list of string)
 				("repo", c.repo),
 				("pagerev", string lrev),
 				("rev", string c.rev),
+				("nodeid", c.nodeid[:12]),
+				("fullnodeid", c.nodeid),
+				("remnodeid", c.nodeid[12:]),
 				("p1", prevstr(c.p1)),
 				("p2", prevstr(c.p2)),
 				("who", userstr(c.user)),
@@ -276,12 +283,12 @@ init(nil: ref Draw->Context, nil: list of string)
 		dpath := path[len "diff/":len path-len ".diff"];
 
 		(repo, diffstr) := str->splitstrl(dpath, "-");
-		if(diffstr == nil || !validrepo(repo))
+		if(diffstr == nil || !validelem(repo))
 			badpath(path);
 		diffstr = diffstr[1:];
 
 		(arevstr, brevstr) := str->splitstrl(diffstr, "-");
-		if(brevstr == nil || !validrev(arevstr) || !validrev(brevstr[1:]))
+		if(brevstr == nil || !validelem(arevstr) || !validelem(brevstr[1:]))
 			badpath(path);
 		brevstr = brevstr[1:];
 
@@ -297,11 +304,11 @@ init(nil: ref Draw->Context, nil: list of string)
 		mpath := path[len "man/":len path-len ".html"];
 
 		(repo, rem) := str->splitstrl(mpath, "/");
-		if(rem == nil || !validrepo(repo))
+		if(rem == nil || !validelem(repo))
 			badpath(path);
 		rem = rem[1:];
 		(rev, man) := str->splitstrl(rem, "/");
-		if(man == nil || !validrev(rev) || !validmanpath(man[1:]))
+		if(man == nil || !validelem(rev) || !validmanpath(man[1:]))
 			badpath(path);
 		man = man[1:];
 
@@ -325,7 +332,7 @@ init(nil: ref Draw->Context, nil: list of string)
 			lpath = path[len "log/full/":];
 
 		(repo, revstr) := str->splitstrl(lpath, "/");
-		if(!validrepo(repo) || revstr == nil || !validrev(revstr[1:]))
+		if(!validelem(repo) || revstr == nil || !validelem(revstr[1:]))
 			return badpath(path);
 		revstr = revstr[1:];
 
@@ -384,6 +391,9 @@ init(nil: ref Draw->Context, nil: list of string)
 				("repo", c.repo),
 				("pagerev", revstr),
 				("rev", string c.rev),
+				("nodeid", c.nodeid[:12]),
+				("fullnodeid", c.nodeid),
+				("remnodeid", c.nodeid[12:]),
 				("p1", prevstr(c.p1)),
 				("p2", prevstr(c.p2)),
 				("nodeidman", c.nodeidman),
@@ -437,14 +447,9 @@ max(a, b: int): int
 	return b;
 }
 
-validrepo(s: string): int
+validelem(s: string): int
 {
-	return s != nil && str->drop(s, "0-9a-zA-Z") == nil;
-}
-
-validrev(s: string): int
-{
-	return s == "last" || s != nil && str->drop(s, "0-9") == nil;
+	return !has(s, '/') && !substr("..", s);
 }
 
 validmanpath(s: string): int
@@ -453,7 +458,7 @@ validmanpath(s: string): int
 	(man, s) = str->splitstrl(s, "/");
 	if(s != nil) (sec, s) = str->splitstrl(s[1:], "/");
 	if(s != nil) (name, s) = str->splitstrl(s[1:], "/");
-	return s == nil && sec != nil && name != nil && !substr("..", sec) && !substr("/", sec) && !substr("..", name) && !substr("/", name);
+	return s == nil && sec != nil && name != nil && validelem(sec) && validelem(name);
 }
 
 substr(sub, s: string): int
@@ -463,13 +468,16 @@ substr(sub, s: string): int
 
 findrev(repo, revstr: string): (int, string)
 {
-	if(revstr == "last")
-		return lastrev(repo);
-
-	(rev, rem) := str->toint(revstr, 10);
-	if(rem != nil)
-		return (0, sprint("bad revision number: %q", rem));
-	return (rev, nil);
+	f := sprint("/n/hg/%s/wire", repo);
+	fd := sys->open(f, Sys->ORDWR);
+	if(fd == nil)
+		return (-1, sprint("open wire: %r"));
+	if(sys->fprint(fd, "revision\n%s\n", revstr) < 0)
+		return (-1, sprint("write wire: %r"));
+	n := sys->readn(fd, buf := array[128] of byte, len buf);
+	if(n < 0)
+		return (-1, sprint("read wire: %r"));
+	return (int string buf[:n], nil);
 }
 
 prevstr(p: int): string
@@ -621,7 +629,7 @@ readchanges(): (list of ref Change, string)
 			break;
 		for(i := 0; i < len dirs && i < n; i++) {
 			d := dirs[i];
-			(c, err) := readchange(d.name, "last");
+			(c, err) := readchange(d.name, "tip");
 			if(err != nil)
 				return (nil, err);
 			l = c::l;
@@ -653,12 +661,11 @@ readchange(repo: string, revstr: string): (ref Change, string)
 	if(err != nil)
 		return (nil, err);
 
-	(rr, rrs) := str->toint(rev, 10);
-	if(revstr != "last" && rr != int revstr)
-		return (nil, sprint("change file claims revision %d, expected revisions %q", rr, revstr));
-	if(rrs != nil)
-		return (nil, sprint("bad revision: %q", rev));
-	c.rev = rr;
+	(revs, nodeids) := str->splitstrl(rev, " ");
+	if(nodeids != nil)
+		nodeids = nodeids[1:];
+	c.rev = int revs;
+	c.nodeid = nodeids;
 
 	c.p1 = c.p2 = -1;
 	if(parents == "none")
@@ -778,6 +785,14 @@ bad(err: string)
 error(status, msg: string)
 {
 	sys->print("status: %s %s\r\ncontent-type: text/html; charset=utf-8\r\n\r\n<html><head>\n<style type=\"text/css\">\nh1 { font-size: 1.4em; }\n</style>\n<title>%s - %s</title>\n</head><body>\n\n<h1>%s - %s</h1>\n</body></html>", status, msg, status, msg, status, msg);
+}
+
+has(s: string, c: int): int
+{
+	for(i := 0; i < len s; i++)
+		if(s[i] == c)
+			return 1;
+	return 0;
 }
 
 suffix(suf, s: string): int
