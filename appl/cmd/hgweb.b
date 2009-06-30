@@ -563,12 +563,19 @@ lastrev(repo: string): (int, string)
 	return (lrev, nil);
 }
 
-breadkey(b: ref Iobuf, key: string): (string, string)
+breadline(b: ref Iobuf): (string, string)
 {
 	s := b.gets('\n');
 	if(s == nil || s[len s-1] != '\n')
-		return (nil, sprint("eof reading key %q", key));
-	s = s[:len s-1];
+		return (nil, sprint("eof reading log line"));
+	return (s[:len s-1], nil);
+}
+
+breadkey(b: ref Iobuf, key: string): (string, string)
+{
+	(s, err) := breadline(b);
+	if(err != nil)
+		return (nil, err);
 	keystr := key+": ";
 	if(!str->prefix(keystr, s))
 		return (nil, sprint("expected key %q, saw line %q", key, s));
@@ -651,13 +658,27 @@ readchange(repo: string, revstr: string): (ref Change, string)
 	c := ref zerochange;
 	c.repo = repo;
 
+	line: string;
 	err: string;
 	rev, parents, nodeidman, user, date: string;
 	if(err == nil) (rev, err) = breadkey(b, "revision");
 	if(err == nil) (parents, err) = breadkey(b, "parents");
 	if(err == nil) (nodeidman, err) = breadkey(b, "manifest nodeid");
 	if(err == nil) (user, err) = breadkey(b, "committer");
-	if(err == nil) (date, err) = breadkey(b, "date");
+	if(err == nil) {
+		(line, err) = breadline(b);
+		if(err == nil) {
+			if(str->prefix("branch: ", line)) {
+				c.branch = line[len "branch: ":];
+				(line, err) = breadline(b);
+			}
+		}
+		if(err == nil) {
+			if(!str->prefix("date: ", line))
+				return (nil, sprint("expected key date, saw line %q", line));
+			date = line[len "date: ":];
+		}
+	}
 	if(err != nil)
 		return (nil, err);
 
