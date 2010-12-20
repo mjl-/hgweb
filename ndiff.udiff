@@ -1,0 +1,142 @@
+--- diff.b	Mon Dec 20 13:38:47 2010
++++ ndiff.b	Mon Dec 20 13:42:09 2010
+@@ -91,12 +91,13 @@
+ bflag : int;			# ignore multiple and trailing blanks 
+ rflag : int;			# recurse down directory trees 
+ mflag : int;			# pseudo flag: doing multiple files, one dir
++nflag : int;			# use /dev/null for absent files
+ 
+ REG,
+ BIN: con iota;
+ 
+ HALFINT : con 16;
+-Usage : con  "usage: diff [ -efbwr ] file1 ... file2";
++Usage : con  "usage: diff [ -efbwrn ] file1 ... file2";
+ 
+ cand : adt {
+ 	x : int;
+@@ -156,6 +157,8 @@
+ 			rflag = 1;
+ 		'm' =>
+ 			mflag = 1;
++		'n' =>
++			nflag = 1;
+ 		* =>
+ 			fatal(Usage);
+ 		}
+@@ -689,32 +692,97 @@
+ 	return cp;
+ }
+ 
++isdir(p: string): int
++{
++	(ok, d) := sys->stat(p);
++	return ok == 0 && d.mode&Sys->DMDIR;
++}
+ 
++# fd, td are directories; ff, tf are files in those directories.  one file may be nil (its directory will ignored).
++# should we print something about one-way directories too?
++ndiff(fd, ff, td, tf: string, level: int)
++{
++	fb:=sys->sprint("%s/%s", fd, ff);
++	tb:=sys->sprint("%s/%s", td, tf);
++
++	if (ff != nil && tf != nil) {
++		dir1 := isdir(fb);
++		dir2 := isdir(tb);
++		if (dir1 && dir2) {
++			diffdir(fb, tb, level);
++		} else if (dir1 || dir2) {
++			ndiff(fd, ff, td, nil, level);
++			ndiff(fd, nil, td, tf, level);
++		} else
++			diffreg(fb, tb);
++		return;
++	}
++
++	if (!nflag) {
++		if (mode != 0)
++			return;
++
++		if (ff == nil)
++			out.puts(sys->sprint("Only in %s: %s\n", td, tf));
++		else
++			out.puts(sys->sprint("Only in %s: %s\n", fd, ff));
++	}
++
++	# one file doesn't exist.
++	# if the existing file is a directory, call ndiff for all its elements.
++	# if it is a file, diff against /dev/null
++	p: string;
++	if (ff != nil)
++		p = sys->sprint("%s/%s", fd, ff);
++	else
++		p = sys->sprint("%s/%s", td, tf);
++
++	(ok, dir) := sys->stat(p);
++	if (ok != 0)
++		error(sys->sprint("cannot stat %q: %r", p));
++
++	if (!(dir.mode&Sys->DMDIR)) {
++		if(ff == nil)
++			fb = "/dev/null";
++		else
++			tb = "/dev/null";
++		diffreg(fb, tb);
++		return;
++	}
++
++	elems := scandir(p);
++	for (i := 0; i < len elems; i++) {
++		nff := ntf := "";
++		if (ff != nil)
++			nff = elems[i];
++		else
++			ntf = elems[i];
++		ndiff(fb, nff, tb, ntf, level);
++	}
++}
++
+ diffdir(f, t : string, level : int) 
+ {
+-	df, dt : array of string;
+-	fb, tb : string;
++	df := array[0] of string;
++	dt := array[0] of string;
++	if (f != nil)
++		df = scandir(f);
++	if (t != nil)
++		dt = scandir(t);
++
+ 	i:=0;
+ 	j:=0;
+-	df = scandir(f);
+-	dt = scandir(t);
+ 	while ((i<len df) || (j<len dt)) {
+ 		if ((j==len dt) || (i<len df && df[i] < dt[j])) {
+-			if (mode == 0)
+-				out.puts(sys->sprint("Only in %s: %s\n", f, df[i]));
+-			i++;
+-			continue;
++			# only f/df[i] exists
++			ndiff(f, df[i++], t, nil, level+1);
++		} else if ((i==len df) || (j<len dt && df[i] > dt[j])) {
++			# only t/dt[j] exists
++			ndiff(f, nil, t, dt[j++], level+1);
++		} else {
++			# both exist
++			ndiff(f, df[i++], t, dt[j++], level+1);
+ 		}
+-		if ((i==len df) || (j<len dt && df[i] > dt[j])) {
+-			if (mode == 0)
+-				out.puts(sys->sprint("Only in %s: %s\n", t, dt[j]));
+-			j++;
+-			continue;
+-		}
+-		fb=sys->sprint("%s/%s", f, df[i]);
+-		tb=sys->sprint("%s/%s", t, dt[j]);		
+-		diff(fb, tb, level+1);
+-		i++; j++;
+ 	}
+ }
+ 

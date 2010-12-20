@@ -7,15 +7,13 @@
 158a160,161
 > 		'n' =>
 > 			nflag = 1;
-206d208
-< 	j1:=0;
-692a695,762
+691a695,699
 > isdir(p: string): int
 > {
 > 	(ok, d) := sys->stat(p);
 > 	return ok == 0 && d.mode&Sys->DMDIR;
 > }
-> 
+692a701,763
 > # fd, td are directories; ff, tf are files in those directories.  one file may be nil (its directory will ignored).
 > # should we print something about one-way directories too?
 > ndiff(fd, ff, td, tf: string, level: int)
@@ -78,7 +76,8 @@
 > 		ndiff(fb, nff, tb, ntf, level);
 > 	}
 > }
-696,697c766,772
+> 
+695,696c766,772
 < 	df, dt : array of string;
 < 	fb, tb : string;
 ---
@@ -89,19 +88,13 @@
 > 	if (t != nil)
 > 		dt = scandir(t);
 > 
-700,701d774
+699,700d774
 < 	df = scandir(f);
 < 	dt = scandir(t);
-704,713c777,784
+703,706c777,784
 < 			if (mode == 0)
 < 				out.puts(sys->sprint("Only in %s: %s\n", f, df[i]));
 < 			i++;
-< 			continue;
-< 		}
-< 		if ((i==len df) || (j<len dt && df[i] > dt[j])) {
-< 			if (mode == 0)
-< 				out.puts(sys->sprint("Only in %s: %s\n", t, dt[j]));
-< 			j++;
 < 			continue;
 ---
 > 			# only f/df[i] exists
@@ -112,7 +105,13 @@
 > 		} else {
 > 			# both exist
 > 			ndiff(f, df[i++], t, dt[j++], level+1);
-715,718d785
+708,717d785
+< 		if ((i==len df) || (j<len dt && df[i] > dt[j])) {
+< 			if (mode == 0)
+< 				out.puts(sys->sprint("Only in %s: %s\n", t, dt[j]));
+< 			j++;
+< 			continue;
+< 		}
 < 		fb=sys->sprint("%s/%s", f, df[i]);
 < 		tb=sys->sprint("%s/%s", t, dt[j]);		
 < 		diff(fb, tb, level+1);
